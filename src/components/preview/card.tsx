@@ -4,6 +4,7 @@ import { getCardDimensions } from '@/common/cardSizes'
 import { getHeroPattern } from '@/common/helpers'
 import { getSimpleIconsImageURI } from '@/common/icons'
 import type Configuration from '@/common/types/configType'
+import { CardSize } from '@/common/types/configType'
 import Badge from '@/src/components/preview/badge'
 
 export default function Card(config: Configuration): JSX.Element {
@@ -11,6 +12,7 @@ export default function Card(config: Configuration): JSX.Element {
   const cardWidth = width / 2
   const cardHeight = height / 2
   const backgroundPatternStyles = getHeroPattern(config.pattern, config.theme)
+  const isWeChatCover = config.size === CardSize.wechat
 
   const languageIconImageURI =
     config.language?.state &&
@@ -34,13 +36,22 @@ export default function Card(config: Configuration): JSX.Element {
             ? '30px'
             : '40px'
 
+  // Calculate if we need tighter spacing for wechat cover mode
+  const hasDescription = config.description?.state
+  const hasBadges =
+    config.stargazers?.state ||
+    config.forks?.state ||
+    config.issues?.state ||
+    config.pulls?.state
+  const needsCompactLayout = isWeChatCover && hasDescription && hasBadges
+
   return (
     <div
       className={`card-wrapper theme-${config.theme.toLowerCase()}`}
       style={{
         width: cardWidth,
         height: cardHeight,
-        padding: '10px 30px',
+        padding: needsCompactLayout ? '8px 30px' : '10px 30px',
         fontFamily: config.font,
         fontWeight: 400,
         ...backgroundPatternStyles,
@@ -62,7 +73,7 @@ export default function Card(config: Configuration): JSX.Element {
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          marginTop: 10,
+          marginTop: isWeChatCover ? 5 : 10,
         }}
       >
         <img
@@ -106,7 +117,7 @@ export default function Card(config: Configuration): JSX.Element {
         style={{
           display: 'flex',
           alignItems: 'center',
-          marginTop: 15,
+          marginTop: isWeChatCover ? 8 : 15,
           marginBottom: 0,
           fontWeight: 500,
           fontSize: nameFontSize,
@@ -144,13 +155,14 @@ export default function Card(config: Configuration): JSX.Element {
             display: 'flex',
             justifyContent: 'center',
             width: '100%',
-            marginTop: 10,
+            marginTop: isWeChatCover ? 5 : 10,
             marginBottom: 0,
-            fontSize: 17,
+            fontSize: isWeChatCover ? 15 : 17,
             lineHeight: '1.4',
-            maxHeight: '3em',
+            maxHeight: isWeChatCover ? '2.5em' : '3em',
             wordBreak: 'break-word',
             whiteSpace: 'pre-wrap',
+            overflow: 'hidden',
           }}
         >
           {config.description.value}
@@ -165,10 +177,13 @@ export default function Card(config: Configuration): JSX.Element {
         <div
           className="card-badges-wrapper"
           style={{
-            marginTop: 25,
+            marginTop: isWeChatCover ? 10 : 25,
             marginBottom: 0,
             display: 'flex',
             flexDirection: 'row',
+            flexWrap: 'wrap',
+            justifyContent: 'center',
+            gap: isWeChatCover ? '4px' : '0',
           }}
         >
           {config.stargazers?.state && (
