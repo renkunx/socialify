@@ -4,6 +4,7 @@ type QueryType = {
   font: Font
   theme: Theme
   pattern: Pattern
+  size?: string
 
   language: string
   stargazers: string

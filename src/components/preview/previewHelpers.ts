@@ -1,5 +1,6 @@
 import { toClipboard } from 'copee'
 
+import type { CardDimensions } from '@/common/cardSizes'
 import toaster from '@/src/components/toaster'
 
 interface ConstructImageUrlProps {
@@ -50,22 +51,27 @@ export function copyMarkdown({
 export function copyImageTag({
   absoluteImageUrl,
   repoName,
+  dimensions,
 }: {
   absoluteImageUrl: string
   repoName: string
+  dimensions: CardDimensions
 }): void {
-  const ogTag = `<img src="${absoluteImageUrl}" alt="${repoName}" width="640" height="320" />`
+  const ogTag = `<img src="${absoluteImageUrl}" alt="${repoName}" width="${dimensions.width}" height="${dimensions.height}" />`
   const success = toClipboard(ogTag)
   if (success) {
     toaster.success('Copied image tag to clipboard')
   }
 }
 
-export function copyOpenGraphTags(absoluteImageUrl: string): void {
+export function copyOpenGraphTags(
+  absoluteImageUrl: string,
+  dimensions: CardDimensions
+): void {
   const ogTag = `
 <meta property="og:image" content="${absoluteImageUrl}" />
-<meta property="og:image:width" content="1280" />
-<meta property="og:image:height" content="640" />
+<meta property="og:image:width" content="${dimensions.width}" />
+<meta property="og:image:height" content="${dimensions.height}" />
   `.trim()
   const success = toClipboard(ogTag)
   if (success) {
@@ -78,6 +84,7 @@ interface HandleDownloadProps {
   fallbackRelativeImageUrl: string
   fileType: string
   repoName: string
+  dimensions: CardDimensions
 }
 
 export function handleDownload({
@@ -85,6 +92,7 @@ export function handleDownload({
   fallbackRelativeImageUrl,
   fileType,
   repoName,
+  dimensions,
 }: HandleDownloadProps): () => Promise<void> {
   return async function () {
     toaster.info('Downloading...')
@@ -101,8 +109,8 @@ export function handleDownload({
         const img = new Image()
         img.onload = () => {
           const canvas = document.createElement('canvas')
-          canvas.width = 1280
-          canvas.height = 640
+          canvas.width = dimensions.width
+          canvas.height = dimensions.height
           const context = canvas.getContext('2d')
           if (context && img) {
             context.drawImage(img, 0, 0, canvas.width, canvas.height)

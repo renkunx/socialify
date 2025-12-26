@@ -1,13 +1,14 @@
 import { render } from '@testing-library/react'
 
 import type Configuration from '@/common/types/configType'
-import { Font, Pattern, Theme } from '@/common/types/configType'
+import { CardSize, Font, Pattern, Theme } from '@/common/types/configType'
 import Card from '@/src/components/preview/cardThemeWrapper'
 
 test('Card #1 renders', () => {
   const config: Configuration = {
     font: Font.inter,
     logo: '',
+    size: CardSize.standard,
     name: {
       value: 'project_name',
       state: true,
@@ -45,6 +46,7 @@ test('Card #2 renders', () => {
   const config: Configuration = {
     font: Font.koHo,
     logo: 'data:image/gif;base64,R0lGODlhAQABAAAAACw=',
+    size: CardSize.standard,
     name: {
       value: 'project_name',
       state: true,

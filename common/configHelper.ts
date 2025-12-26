@@ -3,6 +3,7 @@ import { LANGUAGE_ICON_MAPPING } from '@/common/icons'
 import type Configuration from '@/common/types/configType'
 import type { OptionalConfigs } from '@/common/types/configType'
 import {
+  CardSize,
   Font,
   OptionalConfigsKeys,
   Pattern,
@@ -17,6 +18,15 @@ const DEFAULT_CONFIG: Configuration = {
   font: Font.inter,
   theme: Theme.light,
   pattern: Pattern.plus,
+  size: CardSize.standard,
+}
+
+const VALID_CARD_SIZES = new Set(Object.values(CardSize))
+const getValidCardSize = (size?: string): CardSize => {
+  if (size && VALID_CARD_SIZES.has(size as CardSize)) {
+    return size as CardSize
+  }
+  return CardSize.standard
 }
 
 export const getLanguageOptions = (
@@ -103,6 +113,7 @@ const mergeConfig = (
     font: query.font || DEFAULT_CONFIG.font,
     pattern: query.pattern || DEFAULT_CONFIG.pattern,
     theme: query.theme || DEFAULT_CONFIG.theme,
+    size: getValidCardSize(query.size),
   }
   const optionalConfig = getOptionalConfig(repository)
 
@@ -128,4 +139,4 @@ const mergeConfig = (
   return config
 }
 
-export { DEFAULT_CONFIG, getOptionalConfig, mergeConfig }
+export { DEFAULT_CONFIG, getOptionalConfig, mergeConfig, getValidCardSize }

@@ -2,6 +2,7 @@ import clsx from 'clsx'
 import { JSX, useContext } from 'react'
 import { MdContentCopy, MdDownload } from 'react-icons/md'
 
+import { getCardDimensions } from '@/common/cardSizes'
 import { checkWebpSupport, getChessBoardPattern } from '@/common/helpers'
 import { Pattern } from '@/common/types/configType'
 import CardThemeWrapper from '@/src/components/preview/cardThemeWrapper'
@@ -23,17 +24,18 @@ export default function Preview(): JSX.Element {
   const { config } = useContext(ConfigContext)
   const { repoName, currentPath, searchParamsString }: RouteResources =
     useRouteResources()
+  const dimensions = getCardDimensions(config.size)
 
   return (
     <section className="mb-3">
       <div
         className={clsx(
           'relative cursor-pointer rounded-lg shadow-2xl overflow-hidden',
-          'w-[320px] h-[160px]',
-          'min-[384px]:w-[384px] min-[384px]:h-[192px]',
-          'min-[400px]:w-[400px] min-[400px]:h-[200px]',
-          'min-[480px]:w-[480px] min-[480px]:h-[240px]',
-          'min-[640px]:w-[640px] min-[640px]:h-[320px]'
+          'w-[320px]',
+          'min-[384px]:w-[384px]',
+          'min-[400px]:w-[400px]',
+          'min-[480px]:w-[480px]',
+          'min-[640px]:w-[640px]'
         )}
         onClick={() =>
           copyImageUrl(
@@ -45,11 +47,12 @@ export default function Preview(): JSX.Element {
             })
           )
         }
-        style={
-          config.pattern === Pattern.transparent
+        style={{
+          ...(config.pattern === Pattern.transparent
             ? getChessBoardPattern(config.theme)
-            : undefined
-        }
+            : undefined),
+          aspectRatio: `${dimensions.width} / ${dimensions.height}`,
+        }}
       >
         <div
           className={clsx(
@@ -123,6 +126,7 @@ export default function Preview(): JSX.Element {
                         }),
                         fileType,
                         repoName,
+                        dimensions,
                       })}
                     >
                       <MdDownload className="w-5 h-5" />
@@ -177,6 +181,7 @@ export default function Preview(): JSX.Element {
                       searchParamsString,
                     }),
                     repoName,
+                    dimensions,
                   })
                 }
               >
@@ -191,7 +196,8 @@ export default function Preview(): JSX.Element {
                       format: 'image',
                       currentPath,
                       searchParamsString,
-                    })
+                    }),
+                    dimensions
                   )
                 }
               >

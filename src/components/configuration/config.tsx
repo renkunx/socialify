@@ -1,9 +1,15 @@
 import { JSX, useContext, useEffect } from 'react'
 
-import { getLanguageOptions, getOptionalConfig } from '@/common/configHelper'
+import {
+  DEFAULT_CONFIG,
+  getLanguageOptions,
+  getOptionalConfig,
+  getValidCardSize,
+} from '@/common/configHelper'
 import { RepoQueryResponse } from '@/common/github/repoQuery'
 import type ConfigType from '@/common/types/configType'
 import {
+  CardSize,
   Font,
   Pattern,
   RequiredConfigsKeys,
@@ -117,15 +123,21 @@ export default function Config({
         } else if (key in RequiredConfigsKeys) {
           const query = params.get(key)
           if (query != null) {
-            const newChange = {
-              [key]: query,
+            if (key === 'size') {
+              const newChange = {
+                [key]: getValidCardSize(query),
+              }
+              Object.assign(newConfig, newChange)
+            } else {
+              const newChange = {
+                [key]: query,
+              }
+              Object.assign(newConfig, newChange)
             }
-
-            Object.assign(newConfig, newChange)
           }
         }
       })
-      setConfig({ ...config, ...newConfig })
+      setConfig({ ...config, ...DEFAULT_CONFIG, ...newConfig })
     }
 
     handleRouteChange(searchParamsString)
@@ -168,6 +180,17 @@ export default function Config({
             label: (Pattern as any)[key],
           }))}
           value={config.pattern}
+          handleChange={handleConfigChange}
+        />
+        <SelectWrapper
+          title="Image Size"
+          alt="Pick an output aspect ratio"
+          keyName="size"
+          map={Object.keys(CardSize).map((key) => ({
+            key,
+            label: (CardSize as any)[key],
+          }))}
+          value={config.size}
           handleChange={handleConfigChange}
         />
         <LogoInput

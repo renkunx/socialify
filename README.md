@@ -6,6 +6,10 @@ It includes a ton of options including custom logo, description, badges, and man
 
 Join [![thousands of repositories](https://socialify.git.ci/api/stats.svg)](https://github.com/search?o=desc&q=%22socialify.git.ci%22&s=indexed&type=Code) today!
 
+## Features
+
+- Flexible image sizes with presets: default 1280x640, WeChat cover (2.35:1), and portrait 3:4 for vertical sharing.
+
 ## Usage
 
 Project site: https://socialify.git.ci

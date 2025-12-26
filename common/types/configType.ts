@@ -29,12 +29,19 @@ enum Font {
   jost = 'Jost',
 }
 
+enum CardSize {
+  standard = 'Default 1280x640 (2:1)',
+  wechat = 'WeChat Cover 1280x545 (2.35:1)',
+  portrait = 'Portrait 1280x1707 (3:4)',
+}
+
 type RequiredConfigs = {
   logo: string
 
   font: Font
   theme: Theme
   pattern: Pattern
+  size: CardSize
 }
 
 const OptionalConfigKeyStrings = {
@@ -56,6 +63,7 @@ export const RequiredConfigsKeys = {
   font: true,
   theme: true,
   pattern: true,
+  size: true,
 }
 
 export const OptionalConfigsKeys = {
@@ -85,4 +93,4 @@ type Configuration = RequiredConfigs & OptionalConfigs
 
 export default Configuration
 
-export { Theme, Pattern, Font }
+export { Theme, Pattern, Font, CardSize }

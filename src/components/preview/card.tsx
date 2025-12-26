@@ -1,11 +1,15 @@
 import { JSX } from 'react'
 
+import { getCardDimensions } from '@/common/cardSizes'
 import { getHeroPattern } from '@/common/helpers'
 import { getSimpleIconsImageURI } from '@/common/icons'
 import type Configuration from '@/common/types/configType'
 import Badge from '@/src/components/preview/badge'
 
 export default function Card(config: Configuration): JSX.Element {
+  const { width, height } = getCardDimensions(config.size)
+  const cardWidth = width / 2
+  const cardHeight = height / 2
   const backgroundPatternStyles = getHeroPattern(config.pattern, config.theme)
 
   const languageIconImageURI =
@@ -34,8 +38,8 @@ export default function Card(config: Configuration): JSX.Element {
     <div
       className={`card-wrapper theme-${config.theme.toLowerCase()}`}
       style={{
-        width: 640,
-        height: 320,
+        width: cardWidth,
+        height: cardHeight,
         padding: '10px 30px',
         fontFamily: config.font,
         fontWeight: 400,

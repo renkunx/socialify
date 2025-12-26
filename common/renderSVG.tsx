@@ -2,7 +2,7 @@
 import satori, { init as initSatori } from 'satori/wasm'
 // @ts-ignore
 import initYoga from 'yoga-wasm-web'
-
+import { getCardDimensions } from '@/common/cardSizes'
 import { autoThemeCss } from '@/common/helpers'
 import { getCardConfig, getFonts, loadDynamicAsset } from '@/common/renderCard'
 import { Theme } from '@/common/types/configType'
@@ -16,18 +16,19 @@ const renderCardSVG = async (query: QueryType) => {
   initSatori(yoga)
 
   const config = await getCardConfig(query)
+  const { width, height } = getCardDimensions(config.size)
 
   if (config.theme === Theme.auto) {
     let [lightThemeSvg, darkThemeSvg] = await Promise.all([
       satori(<Card {...config} theme={Theme.light} />, {
-        width: 1280,
-        height: 640,
+        width,
+        height,
         fonts: await getFonts(config.font),
         loadAdditionalAsset: loadDynamicAsset,
       }),
       satori(<Card {...config} theme={Theme.dark} />, {
-        width: 1280,
-        height: 640,
+        width,
+        height,
         fonts: await getFonts(config.font),
         loadAdditionalAsset: loadDynamicAsset,
       }),
@@ -42,15 +43,15 @@ const renderCardSVG = async (query: QueryType) => {
       .replace(/url\(#/g, 'url(#theme-dark-')
 
     return `
-<svg width="1280" height="640" viewBox="0 0 1280 640" xmlns="http://www.w3.org/2000/svg">
+<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
   <style>${autoThemeCss}</style>
   <g class="card-light">${lightThemeSvg}</g>
   <g class="card-dark">${darkThemeSvg}</g>
 </svg>`.replace(/\n\s*/g, '')
   } else {
     return satori(<Card {...config} />, {
-      width: 1280,
-      height: 640,
+      width,
+      height,
       fonts: await getFonts(config.font),
       loadAdditionalAsset: loadDynamicAsset,
     })
