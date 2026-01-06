@@ -3,6 +3,8 @@ name: Docker
 on:
   workflow_dispatch:
   push:
+    branches:
+      - master
   pull_request:
     types:
       - opened
@@ -59,3 +61,12 @@ jobs:
           subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           subject-digest: ${{ steps.build-push.outputs.digest }}
           push-to-registry: true
+
+      - name: Deploy Image to CapRover
+        if: github.ref == 'refs/heads/master'
+        uses: caprover/deploy-from-github@v1.1.2
+        with:
+          server: "${{ secrets.CAPROVER_SERVER }}"
+          app: "${{ secrets.APP_NAME }}"
+          token: "${{ secrets.APP_TOKEN }}"
+          image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest

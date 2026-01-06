@@ -38,3 +38,29 @@ jobs:
 
       - name: Build
         run: pnpm build
+  deploy:
+    name: Deploy to CapRover
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v6
+
+      - name: Setup node
+        uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build (for deployment)
+        run: pnpm build
+
+      - name: Deploy to CapRover
+        uses: caprover/gh-action-deploy@v1
+        with:
+          caproverUrl: ${{ secrets.CAPROVER_URL }}
+          appName: ${{ secrets.CAPROVER_APP_NAME }}
+          captainPassword: ${{ secrets.CAPROVER_PASSWORD }}
