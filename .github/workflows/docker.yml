@@ -62,6 +62,12 @@ jobs:
           subject-digest: ${{ steps.build-push.outputs.digest }}
           push-to-registry: true
 
+      - name: Preset Image Name for CapRover
+        if: github.ref == 'refs/heads/master'
+        run: |
+          IMAGE_URL=$(echo ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:master | tr '[:upper:]' '[:lower:]')
+          echo "IMAGE_URL=${IMAGE_URL}" >> $GITHUB_ENV
+
       - name: Deploy Image to CapRover
         if: github.ref == 'refs/heads/master'
         uses: caprover/deploy-from-github@v1.1.2
@@ -69,4 +75,4 @@ jobs:
           server: "${{ secrets.CAPROVER_SERVER }}"
           app: "${{ secrets.APP_NAME }}"
           token: "${{ secrets.APP_TOKEN }}"
-          image: '"${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"'
+          image: ${{ env.IMAGE_URL }}

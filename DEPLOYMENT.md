@@ -1,34 +1,48 @@
 部署到 CapRover — 说明
 
 目标
-- 在 GitHub Actions 中完成 CI（构建、测试）并在 `main` 分支 push 时自动部署到 CapRover（CD）。
+- 自动构建 Docker 镜像并推送到 GitHub Container Registry (GHCR)。
+- 在每次 push 到 `master` 分支时，通过 CapRover Action 触发应用部署（拉取新镜像）。
 
-已做的更改
-- 更新了 `.github/workflows/build.yml`，添加了 `deploy` job，在 `main` 分支的 push 事件上触发，完成构建后调用 `caprover/gh-action-deploy@v1`。
+工作流概览
+1. **构建镜像** (`docker.yml`)：检出代码 → 登录 GHCR → 构建镜像 → 推送到 `ghcr.io/renkunx/socialify:master`。
+2. **部署** (`docker.yml`)：通过先设置环境变量 `IMAGE_URL`，再用 `caprover/deploy-from-github@v1.1.2` action 部署（遵循官方示例做法）。
 
 必要的 GitHub Secrets
-- `CAPROVER_URL` — 你的 CapRover 管理面板 URL，例如 `https://captain.example.com`
-- `CAPROVER_APP_NAME` — 在 CapRover 上的应用名称（App 名称，不是 Docker 镜像名）
-- `CAPROVER_PASSWORD` — CapRover 的 password（或部署 token / API key，取决于你的 CapRover 配置）
+在仓库 Settings → Secrets and variables → Actions 中添加：
+- `CAPROVER_SERVER` — CapRover 管理面板 URL，例如 `https://captain.example.com`。
+- `APP_NAME` — CapRover 上的应用名（可在 CapRover 仪表盘 → Apps 页面查看）。
+- `APP_TOKEN` — CapRover API token（获取方式：在 CapRover 仪表盘点击用户头像 → API Token / 或通过 CapRover CLI 生成）。
 
-如果使用 `docker.yml` 中的 Docker image 自动推送并让 CapRover 拉取（示例文件中使用了 `caprover/deploy-from-github@v1.1.2`），请在仓库 Secrets 中设置：
-- `CAPROVER_SERVER` — CapRover 管理面板 URL（示例中作为 `server` 传入 action）。
-- `APP_NAME` — CapRover 应用名（示例中作为 `app` 传入 action）。
-- `APP_TOKEN` — CapRover 部署 token（示例中作为 `token` 传入 action）。
+关键做法
+- **环境变量方式**：不在 `with` 中直接放置复杂表达式，而是先通过 `run` 步骤（或 `github env` 文件）设置环境变量，再在 action 的 `with` 中引用该变量。这样可以避免 action 参数解析的各种 PowerShell 陷阱。
+- 官方示例参考：https://caprover.com/docs/ci-cd-integration/deploy-from-github.html
 
-如何在仓库中设置 Secrets
-1. 打开 GitHub 仓库页面 → Settings → Secrets and variables → Actions
-2. 点击 "New repository secret" 并添加上面的三个变量
+故障排查
 
-注意与建议
-- 本次 workflow 使用了 `caprover/gh-action-deploy@v1` 社区 Action。请根据你自己的 CapRover 版本与配置检查 Action 的输入需要项；如果你使用不同的认证（例如 API token），可能需要调整 `CAPROVER_PASSWORD` 的含义或更换成 `CAPROVER_API_KEY`。
-- 如果你的部署方式是通过 Docker 镜像（比如先推镜像到 Docker Hub，再让 CapRover pull 镜像），建议把构建镜像并推送到注册表的步骤加入 workflow，并在 CapRover 上配置拉取镜像。
-- 如果你希望我把 workflow 改为先构建镜像并推送到 Docker Hub（然后通过 CapRover 更新镜像）或使用 SSH/CLI 方式部署，请告诉我，我会按照你的首选方式修改并补充示例。
+1. **镜像推送失败**（GHCR 认证）：
+   - 确保 GitHub Token 有 `write:packages` 权限。
+   - 如果使用个人访问令牌 (PAT)，确保勾选了 `write:packages`。
+
+2. **部署失败（action 返回错误）**：
+   - 检查 `CAPROVER_SERVER` 是否以 `https://` 开头。
+   - 确认 `APP_NAME` 与 CapRover 仪表盘中应用的名称完全一致（区分大小写）。
+   - 验证 `APP_TOKEN` 是否有效且尚未过期。
+   - 在 Actions 日志中查看 action 的完整输出。
+
+3. **CapRover 未拉取新镜像**：
+   - 确保镜像已成功推送到 GHCR（检查 GitHub Packages 页面）。
+   - 在 CapRover 应用设置中，配置镜像源为 `ghcr.io/renkunx/socialify:master`。
+   - 检查 CapRover 应用日志查看拉取镜像是否成功。
+
+快速验证步骤
+
+1. Push 到 `master` 分支触发工作流，在 GitHub Actions 页面观察：
+   - Docker 构建日志（确认镜像推送到 GHCR）。
+   - Deploy 步骤的输出（确认 action 调用成功）。
+
+2. 检查 CapRover 仪表盘应用状态（是否已更新镜像并重新启动）。
 
 参考
-- CapRover 官方文档: https://caprover.com/docs/ci-cd-integration/deploy-from-github.html
 
-快速验证（在本地/远程）
-1. 在 GitHub 仓库中添加上述 Secrets。
-2. Push 到 `main` 分支，检查 Actions → build workflow 运行情况。
-3. 若部署失败，打开 Actions 的 "Deploy to CapRover" 步骤日志，复制报错给我我来定位并修复。
+- CapRover 官方文档：https://caprover.com/docs/ci-cd-integration/deploy-from-github.html
