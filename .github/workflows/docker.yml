@@ -69,4 +69,4 @@ jobs:
           server: "${{ secrets.CAPROVER_SERVER }}"
           app: "${{ secrets.APP_NAME }}"
           token: "${{ secrets.APP_TOKEN }}"
-          image: '${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest'
+          image: '"${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest"'
