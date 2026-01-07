@@ -11,6 +11,11 @@
 - `CAPROVER_APP_NAME` — 在 CapRover 上的应用名称（App 名称，不是 Docker 镜像名）
 - `CAPROVER_PASSWORD` — CapRover 的 password（或部署 token / API key，取决于你的 CapRover 配置）
 
+如果使用 `docker.yml` 中的 Docker image 自动推送并让 CapRover 拉取（示例文件中使用了 `caprover/deploy-from-github@v1.1.2`），请在仓库 Secrets 中设置：
+- `CAPROVER_SERVER` — CapRover 管理面板 URL（示例中作为 `server` 传入 action）。
+- `APP_NAME` — CapRover 应用名（示例中作为 `app` 传入 action）。
+- `APP_TOKEN` — CapRover 部署 token（示例中作为 `token` 传入 action）。
+
 如何在仓库中设置 Secrets
 1. 打开 GitHub 仓库页面 → Settings → Secrets and variables → Actions
 2. 点击 "New repository secret" 并添加上面的三个变量
